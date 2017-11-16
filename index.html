@@ -1,0 +1,498 @@
+<!doctype html>
+
+<!-- Entries with "BRS" above will probably need to be changed/adjusted when re-purposing for a new kiosk -->
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Dong & Jessica Photo Booth Kiosk</title>
+    <meta name="description" content="A photo booth for Toyota">
+    <meta name="author" content="www.inciteco.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="icon" href="img/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/jquery-ui.min.css">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script> 
+    <script src="js/jquery.nicescroll.min.js"></script>
+     <script src="js/jquery.smooth-scroll.min.js"></script> 
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.13.1/jquery.validate.min.js"></script> 
+	<style>
+		#overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			
+			/* BRS */
+			background: url(img/wedding-completion.png) no-repeat center center fixed; 
+			-webkit-background-size: cover;
+			-moz-background-size: cover;
+			-o-background-size: cover;
+			background-size: cover;
+			
+			z-index: 10000;
+		}	
+	</style>    
+</head>
+<script>
+	$(document).ready(function() {
+		$('body').css('opacity', '0').fadeTo(2000, 1,'swing');
+		$("html").niceScroll({touchbehavior:true, bouncescroll:true});
+	  }
+	);
+</script>
+<body class="gradient">
+    <header>
+        <a href="/">
+           <div class="wrap-header">           
+            <!-- BRS -->
+            <div class="logo">
+            	<img src="img/wedding-incite-logo.png" />
+            </div>
+        	</div>
+        </a>
+    </header>
+    
+	<style>
+		.ui-dialog .ui-dialog-content{
+				overflow: hidden;
+		}
+		.error{
+			font-size: 12px;
+			padding-bottom: 5px;
+		}
+	</style>
+
+	<div class="section" style="overflow-y: scroll; -webkit-overflow-scrolling: touch;">
+		<div class="title">Find your video below and tap to access.</div>
+		<div class="thumb-list"></div><!-- end thumb list -->
+		<div style="clear:both;"></div>
+	</div><!-- end section -->
+
+
+	<script type="text/javascript">
+
+		// Arrays for participants
+		var participants = new Array();
+		var participantsTemp = new Array();
+		var incomingList = new Array();
+
+		// close modal function - outside of documentReady to be available
+		// reset placeholders and warnings
+		function closeModal(){
+			if ($('#newModalWindow').dialog('isOpen') === true) {
+				$("video").each(function () { this.pause() });
+				$("#newModalWindow").dialog( "close" );
+				$(".videoPlayButton").fadeIn("slow");
+				$("#email").val('');
+				$("#email").attr("placeholder", "Email Address");
+				
+				// BRS
+			//	$("#firstname").val('');
+			//	$("#firstname").attr("placeholder", "First Name");
+			//	$("#lastname").val('');
+			//	$("#lastname").attr("placeholder", "Last Name");
+			//	$("#zipcode").val('');
+			//	$("#zipcode").attr("placeholder", "Zip Code");
+				
+				$("#searchForm").validate().resetForm();			
+			}	
+		}
+
+		function checkScroll(){
+			if ($('#newModalWindow').dialog('isOpen') === false) {
+				$("html, body").animate({ scrollTop: 0 }, "slow");
+			}
+		}
+
+		//reset idle Modal Window to main kiosk screen
+		var IDLE_TIMEOUT = 30; // seconds
+		var _idleSecondsCounter = 0;
+
+		document.onclick = function () {
+			_idleSecondsCounter = 0;
+		};
+
+		document.onmousemove = function () {
+			_idleSecondsCounter = 0;
+		};
+
+		document.onkeypress = function () {
+			_idleSecondsCounter = 0;
+		};
+
+		window.setInterval(CheckIdleTime, 1000);
+
+		function CheckIdleTime() {
+			_idleSecondsCounter++;
+			var oPanel = document.getElementById("SecondsUntilExpire");
+			if (oPanel)
+				oPanel.innerHTML = (IDLE_TIMEOUT - _idleSecondsCounter) + "";
+			if (_idleSecondsCounter >= IDLE_TIMEOUT) {
+				_idleSecondsCounter = 0;
+				closeModal();
+				checkScroll();
+			}
+		}
+
+
+		// ###########   start document ready ##########
+		$( document ).ready(function() {
+			var overlay = jQuery('<div id="overlay"> </div>');
+
+			$(".videoPlayButton").show();
+
+
+			// calling the load function
+			OverviewAjax();
+			window.setInterval(function(){
+			   OverviewAjax();
+			}, 20000);
+
+
+			// New fixes for video / email / modal
+			$(".wrap-email-submit :input").focus(function() {
+				$(this).removeAttr('placeholder');
+			});
+
+
+			// Main Form submit process: keep modal open, validate form change button state, submit form
+			$('#subButton').on('click', function(e) {
+				// Keep modal window open
+				e.preventDefault();
+				e.stopPropagation();
+				// If form is valid, send it yo
+				if($('#searchForm').valid()) {
+					
+					// BRS
+					$("#subButton").css({"backgroundColor": "#43e33f", "color": "#fff"});
+					$("#subButton").prop("value", "Sending...");
+					$("input[type=button]").attr("disabled", "disabled");
+					setTimeout(function(){ submitdata(); }, 1000);
+				}
+			});
+
+
+			// Validate the form and warn if values not valid
+			$('#searchForm').validate({
+				rules: {
+					myEmail: {
+						minlength: 3,
+						maxlength: 255,
+						required: true,
+						email: true
+					},
+					
+					// BRS
+			      //  firstname: "required",
+					//lastname: "required",
+			       // zipcode: "required"
+				},
+				messages: {
+					
+					// BRS
+			    //	firstname: "Please enter your first name",
+//					lastname: "Please enter your last name",
+					
+					email: {
+						required: "Please enter your email",
+						email: "Your email must be valid"
+					},
+					
+					// BRS
+//			    	zipcode: "Please enter your zip code"
+				},
+			});
+
+			// Actually submit the form
+			function submitdata()
+			{
+
+				// Set values for form data
+				var fEmail = document.getElementById('email').value;
+				var fFirstname = document.getElementById('firstname').value;
+				var fLastname = document.getElementById('lastname').value;
+				var fZipcode = document.getElementById('zipcode').value;
+				var fUserid = document.getElementById('tUserid').value;
+				var fOptout;
+
+				// Set correct value for optout
+				//if(document.getElementById('imax-rights').checked) {
+					// Please send me marketing material
+				//	fOptout = false;
+				//} else {
+					// I don't want marketing material
+				//	fOptout = true;
+				//}	
+				
+				// temp code
+				fOptout = true;
+				
+				$.ajax({
+					async: false,
+					cache: false,
+					type: 'post',
+					
+					// BRS
+					url: 'http://toyota.incite.events/api/participant/' + fUserid + '?appToken=7cd3f679ba70472d9321da6f21a4e86e',
+					
+					data: {
+						email: fEmail,
+						firstname: fFirstname,
+						lastname: fLastname,
+						zipcode: fZipcode,
+						optout: fOptout
+					},
+					dataType: "text",
+//					error: function(xhr, status, error) {
+//            			alert(status);
+//            			alert(xhr.responseText);
+//					},	
+					success: function (response) {
+						overlay.appendTo(document.body);
+						setTimeout(function(){ finishUp(); }, 3000);
+						
+					}
+				});
+			}
+
+			// Send Kiosk back to Main thumbslist
+			function finishUp()
+			{
+				//closeModal();
+				$('body').fadeOut(2500);
+				setTimeout(function(){ top.location.href = "index.html" }, 3000);
+			}
+
+
+			// Existing code from old site
+			function AddParticipant(participantId)
+			{
+				if(participants.length == 0) return true;
+
+				if($.inArray(participantId, participants) == -1)
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+
+			function BuildParticipantsTempList(data) 
+			{
+				participantsTemp.length = 0;
+				$.each(data, function(i, obj) {
+					participantsTemp.push(data[i].Id );
+				});
+			}
+			function BuildParticipantsList(data) 
+			{
+				participants.length = 0;
+				$.each(data, function(i, obj) {
+					participants.push(data[i].Id );
+				});
+			}
+
+			function RemoveParticipants ()
+			{
+				$.each(participants, function(i, obj) {
+					if($.inArray(obj, participantsTemp) == -1)
+					{
+						$("a#"+obj+"").remove();
+					}
+
+				});
+
+				participantsTemp.length = 0;
+			}
+
+			function BuildIncomingList(data)
+			{
+				incomingList.length = 0;
+				$.each(data, function(i, obj) {
+					incomingList.push({id: data[i].Id, incoming: data[i].Incoming, mov1Thumbnail: data[i].Mov1Thumbnail});
+				})
+			}
+
+			function SetThumbnail(item)
+			{
+				$.each(incomingList, function(i, obj) {
+					if(obj.id == item.Id)
+					{
+						if(obj.incoming != item.Incoming)
+						{
+							$("a#"+obj.id+"").find("div.thumb").children(":first-child").css("display", "none");
+							$("a#"+obj.id+"").find("div.thumb").append('<img class="thumb-image-'+ obj.id +' " src="'+ obj.movThumbnail +'" />');
+						}
+					}
+				})
+			}
+
+
+			function OverviewAjax(){
+				$.ajax({
+					
+					// BRS
+					url : "http://toyota.incite.events/api/participants",
+					dataType : 'json',
+					data: {apptoken: "7cd3f679ba70472d9321da6f21a4e86e"},
+					method : 'GET',
+					cache: false,
+					success: function(data){
+						BuildParticipantsTempList(data);
+						$.each(data, function(i, obj) {
+							if(data[i].Incoming == false && AddParticipant(data[i].Id )){
+								json_data = '<div id="opener">'+
+									'<div class="thumb-item">'+
+										'<div class="thumb">'+
+											'<img class="thumb-image" src="'+ data[i].MovThumbnail +'" />'+
+											'<div style="width: 100%; height:100%; position:absolute; top:0; left:0; background: #fff; display: none;" class="wrap-thumb-loading-'+ data[i].Id +'" >'+
+												'<div class="item">'+
+													'<div class="loader">'+ '</div>'+
+												'</div>'+
+											'</div>'+	
+										'</div>'+
+										'<div class="thumb-title">'+ data[i].FirstName +' '+ data[i].LastName +' '+' </div>'+	
+									'</div>'+
+								'</div>';
+								$(json_data).prependTo('.thumb-list');
+
+								// this calls the function to open the modal and submits the selected data
+								$('#opener').click(function(){openModal(data[i].Id, data[i].FirstName, data[i].LastName, data[i].MovThumbnail, data[i].Mov);});
+							} else if(AddParticipant(data[i].Id )) {
+								json_data = '<div id="openerLoading">'+
+									'<div class="thumb-item" style="width: 270px;  float: left; margin: 0 0 50px 36px;  position: relative;">'+
+										'<div class="thumb">'+
+											'<div style="width: 100%; height:100%; position:absolute; top:0; left:0; background: #fff; display: initial;"  >'+
+												'<div class="item">'+
+													'<div class="loader">'+ '</div>'+
+												'</div>'+
+											'</div>'+
+										'</div>'+
+										'<div class="thumb-title">'+ data[i].FirstName +' '+ data[i].LastName +' '+' </div>'+	
+									'</div>'+
+								'</a>';
+								$(json_data).prependTo('.thumb-list');
+							}
+							SetThumbnail(data[i]);
+						});
+						RemoveParticipants();
+						BuildParticipantsList(data);
+						BuildIncomingList(data);
+					},
+					failure: function(){
+						console.log('fail');
+					}
+				});
+			}
+
+			/// Starting the modal tweaks after the ajax loaded
+			var w = $(window).width();
+			var h = $(window).height();
+
+			$("#newModalWindow").dialog({
+					modal: true,
+					autoOpen: false,
+					height: h,
+					width: w,
+					dialogClass: 'transparent-dialog',
+					hide: { effect: "fade", duration: 500 }
+			});
+
+			// open Modal is attached to the click function within the generated ajax
+			function openModal(userId, userFirstName, userLastName, userVideoPosterUrl, userVideoUrl ){
+
+				// now we set the modal with the right values before opening it
+				$("#selection-thumb-user").text(userFirstName + ' ' +  userLastName);
+				$('#tUserid').val(userId);
+				$('#videoPoster').attr('poster', userVideoPosterUrl);
+				$('#videoSource').attr('src', userVideoUrl);
+
+				// then we call the modal
+				$( "#newModalWindow" ).dialog( "open" );
+				var video = $('#videoPoster').get(0);
+				video.load();
+
+				$(".videoPlayButton").on('click', function() {
+					$(".videoPlayButton").hide();
+					video.play();
+					console.log("play");
+				});
+
+				$("#videoPoster").bind("ended", function() {
+				   $(".videoPlayButton").fadeIn("slow");
+				});
+			}
+
+		}); // end document ready function
+
+	</script>
+
+
+	<!-- we start showing the modal window on the same page to avoid speed issues -->
+	<!-- the actual modal window / will be overwritten with the current user data before display -->
+	<div id="newModalWindow" class="modalDialog">
+	<div id="close" title="Close" onClick="closeModal()"><img src="img/Back_Button_grey_Asset.png" border="1" /></div>
+		<div class="modal-wrapper-background"></div>
+		<div class="modal-wrapper-middle">
+
+			<form id="searchForm" name="searchForm" method="POST" >
+
+				<div class="selection-thumb-user" id="selection-thumb-user"></div>
+				<div class="thumb-list-selection">
+					<div class="thumb-item-selection">
+						<div class="videoPlayButton"><img src="img/videoPlayButton.png" /></div>
+						<video id="videoPoster" poster="">
+							<source id="videoSource" src="" type="video/mp4">
+						</video>
+					</div>
+					<div style="clear:both"></div>
+					<div class="submit"> 		
+						<div class="wrap-email-submit">
+							<input type="hidden" name="tUserid" id="tUserid" />
+
+							<!-- BRS -->
+<!--							<label for="firstname" generated="true" class="error"></label>-->
+							<input type="text" name="firstname" id="firstname" required="required" hidden="true" value="Wedding" placeholder="First Name" />
+<!--							<label for="lastname" generated="true" class="error"></label>-->
+							<input type="text" name="lastname" id="lastname" required="required" hidden="true" value="Guest" placeholder="Last Name" />
+
+							<label for="email" generated="true" class="error"></label>
+							<input type="email" name="email" id="email" required="required" placeholder="Email Address" />
+
+							<!-- BRS -->
+<!--							<label for="zipcode" generated="true" class="error"></label>-->
+							<input type="text" name="zipcode" id="zipcode"   required="required" hidden="true" value="12345" placeholder="Zip Code" />
+
+<!--							<div class="checkbox-wrapper">-->
+<!--								<input type="checkbox" name="optout" id="imax-rights" value="mailopt" hidden="true" />-->
+<!--
+								<div class="info-imax-rights">
+									Uncheck box if you do not want to receive promotional material.
+								</div>
+							</div>
+-->
+							<input id="subButton" type="button" value="Send Video" /><br />
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+		<div class="hiddenDialogFocus"><!--dialog div-->
+			<button></button>
+			<button></button> 
+			<input type="hidden" autofocus />
+		</div>
+	</div><!-- end modal content -->
+
+    <footer>
+       <!-- text copyright could go here -->
+    </footer>
+</body>
+</html>

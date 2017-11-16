@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Toyota Kiosk</title>
+		<meta name="description" content="A photo booth for the Toyota Rav4">
+		<meta name="author" content="www.inciteco.com">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<link rel="icon" href="img/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="css/jquery-ui.min.css">
+		<script src="js/jquery.min.js"></script>
+		<script src="js/jquery-ui.min.js"></script> 
+		<script src="js/jquery.nicescroll.min.js"></script>
+		<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.13.1/jquery.validate.min.js"></script> 
+	</head>
+
+	<style>
+		
+		/* BRS */
+		body, html 
+			{
+				width: 100vw;
+				height: 100vh;
+
+				/* BRS */
+				font-family: Helvetica, "Helvetica Neue", Arial, sans-serif;
+				font-weight: normal;
+
+				color: #45778b;
+
+				text-align: center;
+				text-shadow: black;
+				-webkit-font-smoothing: antialiased;
+				-webkit-text-shadow: rgba(255, 255, 255, 0.01) 0 0 1px;
+				-webkit-text-stroke: rgba(255, 255, 255, 0.01) .1px;
+				-webkit-text-stroke-width: .1px;
+				-moz-osx-font-smoothing: grayscale;
+				overflow-x: hidden;
+				-webkit-tap-highlight-color: rgba(0,0,0,0);
+				
+				background: url(img/NameEntry_0016_BACKGROUND.png) no-repeat center center fixed;
+				-webkit-background-size: cover;
+				-moz-background-size: cover;
+				-o-background-size: cover;
+				background-size: cover;
+			}
+		
+		header
+			{
+				padding: 0 50px;
+				width: 80%;
+				margin: 0 auto;
+				position: relative;
+			}
+		
+		.logo
+			{
+				margin: 20px auto;
+			}
+		
+		.logo img
+			{
+				width: 36%;
+			}
+		
+		.naming-content-wrapper
+			{
+				width: 100%;
+				margin-top: 100px;
+			}
+		
+		#callToAction
+			{
+				font-size: 22px
+			}
+		
+		.naming-form-wrapper
+			{
+				width: 80%;
+				margin: 36px auto;
+
+			}
+		
+		.bg-selector
+			{
+				margin:0;padding:0;
+				-webkit-appearance:none;
+				   -moz-appearance:none;
+						appearance:none;
+			}
+		
+		.hockey{background-image:url(img/NameEntry_0005_Hockey_ACTIVE.png);}
+		.ski{background-image:url(img/NameEntry_0004_New_Skis_ACTIVE.png);}
+		.speedskate{background-image:url(img/NameEntry_0003_Speedskating_ACTIVE.png);}
+		.figureskate{background-image:url(img/NameEntry_0002_Figure_Skater_ACTIVE.png);}
+		.pedestal{background-image:url(img/NameEntry_0001_Pedestal_ACTIVE.png);}
+
+		.bg-selector input:active +.pickBG{opacity: .9;}
+		.bg-selector input:checked +.pickBG{
+			-webkit-filter: none;
+			   -moz-filter: none;
+					filter: none;
+		}
+		
+		.pickBG{
+			cursor:pointer;
+			background-size:contain;
+			background-repeat:no-repeat;
+			display:inline-block;
+			width:142px;
+			height:120px;
+			-webkit-transition: all 100ms ease-in;
+			   -moz-transition: all 100ms ease-in;
+					transition: all 100ms ease-in;
+			-webkit-filter: brightness(1) grayscale(1) opacity(1);
+			   -moz-filter: brightness(1) grayscale(1) opacity(1);
+					filter: brightness(1) grayscale(1) opacity(1);
+		}
+		/*
+		.pickBG:hover{
+			-webkit-filter: brightness(1.2) grayscale(.5) opacity(.9);
+			   -moz-filter: brightness(1.2) grayscale(.5) opacity(.9);
+					filter: brightness(1.2) grayscale(.5) opacity(.9);
+		}
+		*/
+		
+		.naming-form-input-wrapper
+			{
+				width: 650px;
+				margin: 50px auto 25px;
+			}
+
+		.naming-form-wrapper input[type="text"]
+			{
+				width: 510px;
+				height: 54px;
+				padding: 2px 13px;
+				border: solid 2px #45778b;
+				background: none;
+				color: #45778b !important;
+				font-size: 28px !important;
+				text-transform: capitalize !important;
+				font-weight: bold;
+				border-radius: 4px;
+				display: inline-block;
+				vertical-align: top;
+/*
+				outline: 0;
+				text-shadow: 0 0 black;
+*/
+			}
+
+		.naming-form-wrapper input[type="text"]:focus
+			{
+/*
+				color: #45778b;
+				border: solid 1px #45778b;
+*/
+			}
+
+		.naming-form-wrapper input[type="text"]:active
+			{
+/*
+				color: #45778b;
+				border: solid 1px #45778b;
+*/
+			}
+		
+		.naming-form-wrapper button[type="submit"]
+			{
+				width: 82px;
+				height: 62px;
+				background: #45778b;
+				border: solid 2px #45778b;
+				color: #fff;
+				font-weight: bold;
+				font-size: 22px;
+				margin-left: -10px;
+				border-top-right-radius: 4px;
+				border-bottom-right-radius: 4px;
+				display: inline-block;
+				vertical-align: top;
+				outline: 0;
+			 }
+
+		.naming-description-wrapper
+			{
+				width: 100%;
+				text-align: center;
+				font-size: 16px;
+			}
+		
+		.naming-retake-button-wrapper button[type="submit"]
+			{
+				width: 86px;
+				height: 36px;
+				font-size: 14px;
+				font-weight: bold;
+				background: #fff;
+				border: none;
+				margin-top: 100px;
+				text-transform: uppercase;
+				border-radius: 4px;
+				color: #45778b;
+			}
+		
+		.searchValidationMessage
+			{
+				width: 650px;
+				height: 15px;
+				margin: 20px 0px 0px 70px ;
+				float: left;
+				display: none;
+			}
+		
+		#visitorName
+			{
+				font-size: 25px;
+				color: #45778b;
+			}
+		
+		::-webkit-input-placeholder 
+		{
+			/* BRS */
+			color: #45778b;
+
+			font-weight: bold;
+		}
+
+		:-moz-placeholder  
+			{
+				/* BRS */
+				color: #45778b;
+
+				font-weight: bold;
+			}
+
+		::-moz-placeholder
+			{
+				/* BRS */
+				color: #45778b;
+
+				font-weight: bold;
+			}
+
+		:-ms-input-placeholder 
+			{  
+				/* BRS */
+				color: #45778b;
+
+				font-weight: bold;
+			}
+		
+		input
+			{
+				-webkit-appearance: none;
+			}
+	</style>
+
+	<body>
+		<header>         
+			<!-- BRS -->
+			<div class="logo">
+				<a href="landing.html"><img src="img/NameEntry_0015_Logo-LOCKUP.png" /></a>
+			</div>	
+    	</header>
+
+	<script>
+		window.onload = function() {
+			if (window.jQuery) {
+
+				// first i avoid the form from submission
+				$("#searchForm").submit(function() {
+				  return false;
+				});
+
+				// if the user clicks the field i change the color, the button value and remove the placeholder
+				$("#visitorName").focus(function() {
+					$(this).removeAttr('placeholder');
+					
+					// BRS
+					$("#naming-submit-button").css("background-color", "#46c3fc");
+					$("#naming-submit-button").css("border", "solid 1px #46c3fc");
+					$("#naming-submit-button").css("font-weight", "bold");
+					$("#visitorName").css("border", "solid 2px #46c3fc");
+					$("#visitorName").css("color", "#46c3fc");
+					$("#naming-submit-button").val("OK");
+				});
+
+				// i change things back if the user clicks outside of field except the typed in name stays
+				$("#visitorName").focusout(function() {
+					
+					// BRS
+					$("#visitorName").css("border", "solid 2px #45778b");
+					$("#visitorName").css("color", "#fff");
+					$("#naming-submit-button").css("background-color", "#45778b");
+					$("#naming-submit-button").css("border", "solid 1px #45778b");
+					$("#naming-submit-button").css("font-weight", "bold"); 
+				});
+
+
+				// this is the submit ajax function called if the user clicks on the button/submission function
+				function SubmitNameAjax(name,selection){
+					console.log("submitNameAjax called");
+					var url = "http://toyota.incite.events/api/currentparticipant?appToken=7cd3f679ba70472d9321da6f21a4e86e"
+					var proxy = 'https://cors-anywhere.herokuapp.com/';
+					console.log("name in submitNameAjax" + name);
+					$.ajax({
+						url: url,
+						dataType : 'json',
+						data: {name: name, selection: selection},
+						method : 'POST',
+						cache: false,
+						success: function(data){
+							console.log(data["success"]);
+							if(data["success"] == true ){
+								
+								// if the response is success i change the ok button to a checkmark 
+								// i change the border and text color
+								// and set a timeout with a feedback message
+								// after 3 seconds i remove the typed in name and replace it with the original placeholder
+								//$("#naming-submit-button").val($("<div>").html("&#10004;").text());
+								$("#visitorName").css("border", "solid 1px #46c3fc");
+								$("#visitorName").css("color", "#46c3fc");
+								$("#naming-submit-button").css("background-color", "#46c3fc");
+								$("#naming-submit-button").css("border", "solid 1px #46c3fc");
+								$("#naming-submit-button").css("font-weight", "bold");
+								$("#naming-submit-button").attr('disabled', true);
+								$("#naming-submit-button").html("OK!");
+								
+								// this disables the submit button for 2 seconds to avoid multiple clicks
+								setTimeout(function() { 
+									$("#naming-submit-button").attr('disabled', false).val($("<div>").html("OK").text());
+									$("#visitorName").val('');
+									$("#visitorName").attr('placeholder', 'Enter visitor name');
+									document.getElementById('hockey').checked = true;
+									$("#visitorName").css("border", "solid 2px #45778b");
+									$("#naming-submit-button").css("background-color", "#45778b");
+									$("#naming-submit-button").css("border", "solid 1px #45778b");
+									$("#naming-submit-button").css("font-weight", "bold");
+									
+								$("#naming-submit-button").html("OK");
+								}, 2000);
+
+								$(".searchValidationMessage").val("");
+								$(".searchValidationMessage").text("Your name was successfuly sent. Thank You.");
+								$(".searchValidationMessage").fadeIn();
+								setTimeout(function() { $(".searchValidationMessage").fadeOut(); }, 2000);
+							} else {
+								
+								// if not successful i show an error message for 3 seconds
+								$(".searchValidationMessage").text("There was a submission error. Please try again.");
+								$(".searchValidationMessage").fadeIn();
+								setTimeout(function() { $(".searchValidationMessage").fadeOut(); }, 3000);
+							}
+						}
+					});
+				}
+
+
+				// this submits the form and calls the ajax function above
+				$(".naming-submit-button").click(function() {
+				   if($("#visitorName").val() == ""){
+						
+					   // if the textfield has no value i show an error message for 3 seconds
+						$(".searchValidationMessage").text("Please enter your name before sending the form");
+						$(".searchValidationMessage").fadeIn();
+						setTimeout(function() { $(".searchValidationMessage").fadeOut(); }, 3000);
+				   } else {
+						var newName = $("#visitorName").val();
+					   	var newBG = $(".sport:checked").val();
+						SubmitNameAjax(newName, newBG);
+				   }
+				});
+
+		/* ##########   Retake Button  */
+
+				// retake button ajax get call, this gets the last saved name from the api
+				function OverviewAjax(){
+					$.ajax({
+						url : "http://toyota.incite.events/api/currentparticipant",
+						dataType : 'json',
+						data: {apptoken: "7cd3f679ba70472d9321da6f21a4e86e"},
+						method : 'GET',
+						cache: false,
+						success: function(data){
+							if(data["Id"]){
+								$(".naming-form-input-wrapper input").removeAttr('placeholder');
+								$("#visitorName").val(data["Name"]);
+								$("input[name=sport][value=" + data["Selection"] + "]").prop('checked', true);
+								$("#visitorName").css("border", "solid 1px #46c3fc");
+								$("#visitorName").css("color", "#46c3fc");
+								$("#naming-submit-button").css("background-color", "#46c3fc");
+								$("#naming-submit-button").css("border", "solid 1px #46c3fc");
+								$("#naming-submit-button").css("font-weight", "bold");
+							} else {
+							  console.log("no name found")
+							}
+						}
+					});
+				}
+
+				// the retake button div calls the function above
+				$(".naming-retake-button").click(function() {
+					OverviewAjax();
+				});
+			} else {
+				console.log("Jquery is not loaded");
+			}
+		}
+	</script>
+
+
+	<!-- here we start the html form -->
+	<div class="naming-content-wrapper">
+		<div id="callToAction">
+			SELECT BACKGROUND BELOW
+		</div>
+		<div class="naming-form-wrapper">
+			<form id="searchForm" name="searchForm" method="POST" action="#" >	
+				 <div class="bg-selector">
+					<input id="hockey" type="radio" class="sport" name="sport" value="1" hidden="true" checked />
+					<label class="pickBG hockey" for="hockey"></label>
+					<input id="ski" type="radio" class="sport" name="sport" value="2" hidden="true" />
+					<label class="pickBG ski" for="ski"></label>
+					<input id="speedskate" type="radio" class="sport" name="sport" value="3" hidden="true" />
+					<label class="pickBG speedskate" for="speedskate"></label>
+					<input id="figureskate" type="radio" class="sport" name="sport" value="4" hidden="true" />
+					<label class="pickBG figureskate" for="figureskate"></label>
+					<input id="pedestal" type="radio" class="sport" name="sport" value="5" hidden="true" />
+					<label class="pickBG pedestal" for="pedestal"></label>
+				</div>
+				 
+				<!-- the error messages are shown here -->
+				<div class="searchValidationMessage"></div>
+				
+				<div class="naming-form-input-wrapper">
+					<input type="text" name="visitorName" id="visitorName"  placeholder="Enter visitor name" />
+					<button class="naming-submit-button" name="naming-submit-button" id="naming-submit-button" type="submit">OK</button>
+				</div>   
+			</form>
+
+			<div class="naming-description-wrapper">
+				Do not enter a new name until the current visitor <br /> has finished
+				taking their photo.
+			</div>
+
+			<div class="naming-retake-button-wrapper">
+				<button class="naming-retake-button" type="submit">Retake</button>
+			</div>
+		</div>
+	</div>
+		<footer>
+		   <!-- text copyright could go here -->
+		</footer>
+	</body>
+</html>
